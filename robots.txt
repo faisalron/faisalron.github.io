@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://faisalron.github.io/sitemap.xml
