@@ -102,11 +102,6 @@
       color: #181715;
       margin: 1.4rem 0;
     }
-    pre code {
-      background: transparent;
-      border: 0;
-      padding: 0;
-    }
     hr {
       border: 0;
       border-top: 1px solid #e2dcd0;
@@ -205,17 +200,7 @@
 
         <p>Applying those whitepaper splits to Google Antigravity pairs built-in files with two custom additions (<code>sessions/</code> summaries and a team <code>.agents/wiki/</code>) across three disk tiers:</p>
 
-<pre><code>~/.gemini/
-  ├── GEMINI.md                        # [Built-in] Tier 2 private user defaults
-  ├── config/hooks.json                # [Built-in] PreToolUse &amp; Stop hooks
-  ├── config/mcp_config.json           # [Built-in] Approved MCP bridges (BigQuery)
-  └── sessions/&lt;id&gt;/summary.json       # [Custom RSI] Tier 1 Stop-hook resume summary
-repo/.agents/
-  ├── rules/*.md                       # [Built-in] Tier 2 team rules (&lt;= 450 tokens)
-  ├── wiki/*.md                        # [Custom RSI] Tier 2 team Markdown wiki
-  └── skills/&lt;name&gt;/
-        ├── SKILL.md                   # [Built-in] Tier 3 on-demand YAML workflow
-        └── scripts/                   # [Custom RSI] Checked scripts from dreaming</code></pre>
+<pre>~/.gemini/<br />&#160;&#160;├── GEMINI.md&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# [Built-in] Tier 2 private user defaults<br />&#160;&#160;├── config/hooks.json&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# [Built-in] PreToolUse &amp; Stop hooks<br />&#160;&#160;├── config/mcp_config.json&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# [Built-in] Approved MCP bridges (BigQuery)<br />&#160;&#160;└── sessions/{id}/summary.json&#160;&#160;&#160;&#160;&#160;&#160;&#160;# [Custom RSI] Tier 1 Stop-hook resume summary<br />repo/.agents/<br />&#160;&#160;├── rules/*.md&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# [Built-in] Tier 2 team rules (&lt;= 450 tokens)<br />&#160;&#160;├── wiki/*.md&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# [Custom RSI] Tier 2 team Markdown wiki<br />&#160;&#160;└── skills/{name}/<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;├── SKILL.md&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# [Built-in] Tier 3 on-demand YAML workflow<br />&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;└── scripts/&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;# [Custom RSI] Checked scripts from dreaming</pre>
 
         <ol>
           <li><strong>Tier 1, Working Session and Monday Resume (<code>Private Workbench</code>):</strong> Today's chat, terminal runs, and <strong>Artifacts</strong> stay in the active session, trimmed mid-task with <code>/context</code> and <code>/compact</code>. When Friday's session closes, one short summary (<code>objective</code>, <code>decisions</code>, <code>next_step</code>) is saved locally with higher weight on recent work. Monday morning resumes cleanly without reloading 50k raw log tokens.</li>
@@ -225,26 +210,11 @@ repo/.agents/
 
         <p>In our BigQuery example, Tuesday's failure turns into compact <code>[PROMOTED]</code> (proven habits) and <code>[DEAD_END]</code> (verified traps) rules in Tier 2:</p>
 
-<pre><code>&lt;!-- .agents/rules/rsi-data-guardrails.md (Always-On, &lt;= 450 tokens) --&gt;
-# Data Pipeline Guardrails
-
-- [PROMOTED | verified: 14 runs] Validate SQL with `bq query --dry_run` before executing or reporting byte estimates.
-- [DEAD_END | verified: 7 runs] Never wrap partitioned `event_ts` in `DATE()` inside `WHERE`; it breaks partition pruning and hits the 10 GB scan cap.
-- [DEAD_END | verified: 5 runs] Never retry webhook workers without an `idempotency_key` header; Pub/Sub delivers duplicates.</code></pre>
+<pre># .agents/rules/rsi-data-guardrails.md (Always-On, &lt;= 450 tokens)<br /># Data Pipeline Guardrails<br /><br />- [PROMOTED | verified: 14 runs] Validate SQL with `bq query --dry_run` before executing or reporting byte estimates.<br />- [DEAD_END | verified: 7 runs] Never wrap partitioned `event_ts` in `DATE()` inside `WHERE`; it breaks partition pruning and hits the 10 GB scan cap.<br />- [DEAD_END | verified: 5 runs] Never retry webhook workers without an `idempotency_key` header; Pub/Sub delivers duplicates.</pre>
 
         <p>Meanwhile, the full dry-run workflow stays tucked out of sight in Tier 3 until a BigQuery task matches:</p>
 
-<pre><code>---
-name: bq-audit
-description: Audit and dry-run BigQuery SQL changes before execution.
----
-
-# BigQuery Audit Workflow
-
-1. Confirm partition filters compare raw `TIMESTAMP` bounds directly.
-2. Run the scan-byte check before reporting costs or querying prod:
-   `python3 .agents/skills/bq-audit/scripts/dry_run_gate.py &lt;sql_file&gt;`
-3. If the dry-run check fails, fix the raw `TIMESTAMP` filter before running the query.</code></pre>
+<pre>---<br />name: bq-audit<br />description: Audit and dry-run BigQuery SQL changes before execution.<br />---<br /><br /># BigQuery Audit Workflow<br /><br />1. Confirm partition filters compare raw `TIMESTAMP` bounds directly.<br />2. Run the scan-byte check before reporting costs or querying prod:<br />&#160;&#160;&#160;`python3 .agents/skills/bq-audit/scripts/dry_run_gate.py {sql_file}`<br />3. If the dry-run check fails, fix the raw `TIMESTAMP` filter before running the query.</pre>
 
         <p>This three-tier layout gives Tuesday's SQL lesson a clean home on disk. Yet a harder question remains: <strong>who writes and updates <code>.agents/rules/</code> and <code>.agents/skills/</code>, and when?</strong></p>
 
@@ -275,11 +245,7 @@ description: Audit and dry-run BigQuery SQL changes before execution.
           <li><strong>It turns proven rules into scripts.</strong> When code can check a <code>[PROMOTED]</code> rule, the job moves it into a script under <code>.agents/skills/bq-audit/scripts/</code> and trims <code>.agents/rules/</code>.</li>
         </ol>
 
-<pre><code>--- a/.agents/rules/rsi-data-guardrails.md
-+++ b/.agents/rules/rsi-data-guardrails.md
-@@ -1,4 +1,3 @@
--- [PROMOTED | verified: 14 runs] Validate SQL with `bq query --dry_run` before executing or reporting byte estimates.
-+- Checked automatically by `bq-audit` skill (`scripts/dry_run_gate.py`).</code></pre>
+<pre>--- a/.agents/rules/rsi-data-guardrails.md<br />+++ b/.agents/rules/rsi-data-guardrails.md<br />@@ -1,4 +1,3 @@<br />-- [PROMOTED | verified: 14 runs] Validate SQL with `bq query --dry_run` before executing or reporting byte estimates.<br />+- Checked automatically by `bq-audit` skill (`scripts/dry_run_gate.py`).</pre>
 
         <ol start="3">
           <li><strong>It runs safety and holdout checks before opening a Git PR.</strong> <strong>Model Armor</strong> scans candidate diffs for prompt attacks (<strong>memory poisoning</strong>), while <strong>Sensitive Data Protection</strong> strips PII and secrets. Next, <strong>Gen AI Evaluation Service (<code>batch_evaluate()</code>)</strong> and Section 1's headless <code>agy</code> CLI test personal defaults, attack blocking, and multi-day quality on an <code>80/20</code> holdout split. Only passing diffs open a <strong><code>DRAFT_PROPOSED</code> Git Pull Request</strong> for human review.</li>
