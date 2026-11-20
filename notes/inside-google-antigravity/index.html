@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inside Google Antigravity: Coding Agent Anatomy, 3-Tier Memory, and Self-Improving Workflows</title>
+  <meta
+    name="description"
+    content="Inside Google Antigravity: how coding agents stay safe with OS sandboxes, 3-tier memory on disk, and nightly self-improvement workflows on Google Cloud."
+  />
+  <meta name="author" content="Faisal Ibrahim Hadiputra" />
+  <link rel="canonical" href="https://faisalron.github.io/notes/inside-google-antigravity/" />
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg" />
+
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Inside Google Antigravity: Coding Agent Anatomy, 3-Tier Memory, and Self-Improving Workflows" />
+  <meta
+    property="og:description"
+    content="Inside Google Antigravity: how coding agents stay safe with OS sandboxes, 3-tier memory on disk, and nightly self-improvement workflows on Google Cloud."
+  />
+  <meta property="og:url" content="https://faisalron.github.io/notes/inside-google-antigravity/" />
+  <meta property="og:image" content="https://faisalron.github.io/notes/inside-google-antigravity/02_figure_2_antigravity_anatomy_2x.png" />
+  <meta property="article:published_time" content="2026-11-20T09:55:00Z" />
+  <meta property="article:author" content="Faisal Ibrahim Hadiputra" />
+
+  <style>
+    body {
+      max-width: 740px;
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 4rem;
+      font-family: Georgia, Cambria, "Times New Roman", serif;
+      font-size: 18px;
+      line-height: 1.72;
+      color: #3a3732;
+      background: #faf8f4;
+    }
+    nav {
+      border-bottom: 1px solid #e2dcd0;
+      padding-bottom: 0.9rem;
+      margin-bottom: 2.2rem;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    nav a {
+      color: #8c2d19;
+      text-decoration: none;
+    }
+    nav a:hover {
+      text-decoration: underline;
+    }
+    h1, h2, h3 {
+      font-family: Georgia, Cambria, "Times New Roman", serif;
+      color: #181715;
+      line-height: 1.24;
+      margin-top: 2.1rem;
+      margin-bottom: 0.75rem;
+    }
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 600;
+      margin-top: 0;
+    }
+    h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+    h3 {
+      font-size: 1.18rem;
+      color: #5c574f;
+      font-weight: 500;
+      font-style: italic;
+      margin-top: 0.35rem;
+    }
+    p, li {
+      margin-bottom: 0.95rem;
+    }
+    a {
+      color: #8c2d19;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.86em;
+      background: #f3efe7;
+      border: 1px solid #e2dcd0;
+      padding: 0.1em 0.35em;
+      border-radius: 2px;
+      color: #181715;
+    }
+    pre {
+      background: #ffffff;
+      border: 1px solid #e2dcd0;
+      padding: 1rem;
+      overflow-x: auto;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13.5px;
+      line-height: 1.58;
+      border-radius: 3px;
+      color: #181715;
+      margin: 1.4rem 0;
+    }
+    pre code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+    }
+    hr {
+      border: 0;
+      border-top: 1px solid #e2dcd0;
+      margin: 2.3rem 0;
+    }
+    figure {
+      margin: 1.8rem 0;
+      border: 1px solid #e2dcd0;
+      background: #ffffff;
+      padding: 0.85rem;
+    }
+    figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    figcaption {
+      margin-top: 0.65rem;
+      font-size: 0.82rem;
+      color: #6f6a61;
+      line-height: 1.45;
+    }
+  </style>
+</head>
+<body>
+  <nav aria-label="Site backlink">
+    <a href="https://faisalron.github.io/#note/inside-google-antigravity">Faisal I. Hadiputra · Field Note 03</a>
+  </nav>
+
+  <main>
+    <article class="h-entry">
+      <div class="e-content">
+        <h1 class="p-name">Inside Google Antigravity: Coding Agent Anatomy, 3-Tier Memory, and Self-Improving Workflows</h1>
+        <h3>How a modern coding agent runs safely, organizes personal and team memory on disk, and improves overnight on Google Cloud without prompt bloat.</h3>
+
+        <hr />
+
+        <p>Coding agents feel sharp on Monday, then often hit a wall by Friday. Stuffing every chat log into a bigger window slows replies and lowers focus (<strong>context rot</strong>). Telling the agent to append every bug fix straight to <code>AGENTS.md</code> creates another trap: one-off guesses and conflicting rules pile up and quietly break older tasks.</p>
+
+        <p>Picture a routine Tuesday bug on a data team. An agent wraps partitioned <code>event_ts</code> in <code>DATE()</code> inside a BigQuery <code>WHERE</code> clause and hits a 10 GB scan cap. How should the agent run that Tuesday fix safely, and how can it carry that lesson into Thursday's work without turning <code>AGENTS.md</code> into junk?</p>
+
+        <figure>
+          <img
+            src="https://faisalron.github.io/notes/inside-google-antigravity/01_figure_1_tuesday_bug_2x.png"
+            width="2336"
+            height="969"
+            alt="Two-card diagram showing a broken BigQuery WHERE DATE(event_ts) filter scanning all six partitions (48 GB against a 10 GB cap) paired with two naive fixes that fail: stuffing full chat history into prompts or appending unreviewed fixes directly to AGENTS.md."
+          />
+          <figcaption>Figure 1: Tuesday's full-scan bug breaks partition pruning and why naive prompt or history shortcuts fail.</figcaption>
+        </figure>
+
+        <p>Figure 1 shows the core tension: we want to prevent Tuesday's full-scan bug on future runs without bloating or breaking shared prompts. Answering how starts inside the coding agent itself.</p>
+
+        <hr />
+
+        <h2>1. How One Task Runs: Google Antigravity's Four Tenets</h2>
+
+        <p>Research on <strong>SWE-agent</strong> (<a href="https://arxiv.org/abs/2405.15793">arXiv:2405.15793</a>) showed why coding agents struggle with raw bash shells and need a purpose-built <strong>Agent-Computer Interface (ACI)</strong>. Google's official <a href="https://antigravity.google/blog/introducing-google-antigravity/"><em>Introducing Google Antigravity</em></a> post builds on that lesson by bringing <em>"four key tenets of collaborative development together: trust, autonomy, feedback, and self-improvement"</em> (Figure 2):</p>
+
+        <figure>
+          <img
+            src="https://faisalron.github.io/notes/inside-google-antigravity/02_figure_2_antigravity_anatomy_2x.png"
+            width="2336"
+            height="1387"
+            alt="Architecture diagram grouping Google Antigravity capabilities into four zones: Autonomy (Agent Manager, VS Code Editor, headless agy CLI, isolated subagents in Git worktrees, OS-kernel sandbox, Chrome browser loop, MCP, Lifecycle Hooks), Trust (Plan and Walkthrough Artifacts), Feedback (inline Artifact comments), and Self-Improvement (private defaults, team rules, and on-demand skills)."
+          />
+          <figcaption>Figure 2: How Google Antigravity pairs autonomy, inspectable artifacts, inline feedback, and disk-based self-improvement inside one coding session.</figcaption>
+        </figure>
+
+        <ol>
+          <li>
+            <strong>Autonomy:</strong> Antigravity runs multi-step coding work without constant hand-holding:<br />
+            &bull; <strong>Workspaces and CLI:</strong> <a href="https://antigravity.google/docs/overview"><code>Agent Manager</code> and the VS Code <code>Editor</code></a> pair with the headless <a href="https://antigravity.google/docs/cli"><code>agy</code> CLI</a> to route live or background tasks.<br />
+            &bull; <strong>Isolated Subagents:</strong> Heavy codebase searches and tests spin out to <a href="https://antigravity.google/docs/subagents"><strong>Subagents</strong></a> with fresh context windows and Git <code>branch</code> worktrees. That keeps noisy logs out of your main chat.<br />
+            &bull; <strong>OS Sandbox and Browser:</strong> Commands run inside an OS-kernel <a href="https://antigravity.google/docs/sandbox"><strong>Terminal Sandbox</strong></a> (<code>sandbox-exec</code> on macOS, kernel namespaces/<code>cgroups</code> on Linux) without VM lag. Meanwhile, Chrome <strong>Browser-in-the-Loop</strong> checks live UI screens.<br />
+            &bull; <strong>MCP and Lifecycle Hooks:</strong> <strong>MCP</strong> (<code>mcp_config.json</code>) connects tools like BigQuery, while <a href="https://antigravity.google/docs/hooks"><strong>Lifecycle Hooks</strong></a> (<code>hooks.json</code>) block unsafe shell or MCP calls pre-run.
+          </li>
+          <li>
+            <strong>Trust (<code>Artifacts</code>):</strong> Rather than hiding work or dumping raw terminal logs from Tuesday's SQL fix, the agent emits structured <a href="https://antigravity.google/docs/artifacts"><strong>Artifacts</strong></a>. Engineers inspect a <strong>Plan</strong> before edits start, then check diffs, screenshots, and a final <strong>Walkthrough</strong>.
+          </li>
+          <li>
+            <strong>Feedback (Live Steering):</strong> If you spot the bad <code>DATE(event_ts)</code> filter inside that <strong>Plan</strong>, you leave a Google-Docs-style comment right on the Artifact. The agent updates its active run without restarting from scratch.
+          </li>
+          <li>
+            <strong>Self-Improvement (Knowledge on Disk):</strong> Antigravity saves <em>architecture notes</em> and <em>reusable subtask steps</em> in <a href="https://antigravity.google/docs/rules"><strong>Rules</strong></a> and <a href="https://antigravity.google/docs/skills"><strong>Skills</strong></a> so future sessions learn from past work.
+          </li>
+        </ol>
+
+        <p>Tenets 1 to 3 keep Tuesday's single task safe, inspectable, and easy to steer. Tenet 4 (<strong>Self-Improvement</strong>) is where teams hit trouble by Friday. If every fix gets dumped into one flat prompt file, personal notes leak to teammates and prompts grow out of control. Avoiding that trap takes a clear layout on disk.</p>
+
+        <hr />
+
+        <h2>2. Structuring Self-Improvement on Disk: Three Memory Tiers</h2>
+
+        <p>Google's May 2026 whitepaper, <a href="https://www.kaggle.com/whitepaper-context-engineering-sessions-and-memory"><em>Context Engineering: Sessions, Memory</em></a> (Milam, Gulli, &amp; Nawalgaria), gives the blueprint for organizing Tenet 4. First, it splits today's <strong>Session</strong> workbench from long-term <strong>Memory</strong>, which curates lessons offline (<code>Ingestion -&gt; Extraction -&gt; Consolidation -&gt; Retrieval</code>) instead of searching static docs like <strong>RAG</strong>. Second, it separates personal notes from shared team guides, and splits knowing facts from knowing step-by-step workflows.</p>
+
+        <p>Applying those whitepaper splits to Google Antigravity pairs built-in files with two custom additions (<code>sessions/</code> summaries and a team <code>.agents/wiki/</code>) across three disk tiers:</p>
+
+<pre><code>~/.gemini/
+  ├── GEMINI.md                        # [Built-in] Tier 2 private user defaults
+  ├── config/hooks.json                # [Built-in] PreToolUse &amp; Stop hooks
+  ├── config/mcp_config.json           # [Built-in] Approved MCP bridges (BigQuery)
+  └── sessions/&lt;id&gt;/summary.json       # [Custom RSI] Tier 1 Stop-hook resume summary
+repo/.agents/
+  ├── rules/*.md                       # [Built-in] Tier 2 team rules (&lt;= 450 tokens)
+  ├── wiki/*.md                        # [Custom RSI] Tier 2 team Markdown wiki
+  └── skills/&lt;name&gt;/
+        ├── SKILL.md                   # [Built-in] Tier 3 on-demand YAML workflow
+        └── scripts/                   # [Custom RSI] Checked scripts from dreaming</code></pre>
+
+        <ol>
+          <li><strong>Tier 1, Working Session and Monday Resume (<code>Private Workbench</code>):</strong> Today's chat, terminal runs, and <strong>Artifacts</strong> stay in the active session, trimmed mid-task with <code>/context</code> and <code>/compact</code>. When Friday's session closes, one short summary (<code>objective</code>, <code>decisions</code>, <code>next_step</code>) is saved locally with higher weight on recent work. Monday morning resumes cleanly without reloading 50k raw log tokens.</li>
+          <li><strong>Tier 2, Short Rules and Team Wiki (<code>Knowing Facts</code>):</strong> Personal defaults stay private in <code>~/.gemini/GEMINI.md</code>. Shared rules sit in <code>.agents/rules/*.md</code>, capped at <code>&lt;= 450</code> tokens per domain inside Antigravity's <code>20k</code> limit. Deeper system maps live in <code>.agents/wiki/*.md</code> for engineers to read directly, searched with keyword plus vector matching (like Reciprocal Rank Fusion).</li>
+          <li><strong>Tier 3, Step-by-Step Workflows (<code>Knowing How</code>):</strong> Multi-step tasks live in <code>.agents/skills/&lt;name&gt;/SKILL.md</code> alongside helper <code>scripts/</code>. At startup, Antigravity reads only the tiny YAML header, loading full instructions and scripts only when a matching task arrives.</li>
+        </ol>
+
+        <p>In our BigQuery example, Tuesday's failure turns into compact <code>[PROMOTED]</code> (proven habits) and <code>[DEAD_END]</code> (verified traps) rules in Tier 2:</p>
+
+<pre><code>&lt;!-- .agents/rules/rsi-data-guardrails.md (Always-On, &lt;= 450 tokens) --&gt;
+# Data Pipeline Guardrails
+
+- [PROMOTED | verified: 14 runs] Validate SQL with `bq query --dry_run` before executing or reporting byte estimates.
+- [DEAD_END | verified: 7 runs] Never wrap partitioned `event_ts` in `DATE()` inside `WHERE`; it breaks partition pruning and hits the 10 GB scan cap.
+- [DEAD_END | verified: 5 runs] Never retry webhook workers without an `idempotency_key` header; Pub/Sub delivers duplicates.</code></pre>
+
+        <p>Meanwhile, the full dry-run workflow stays tucked out of sight in Tier 3 until a BigQuery task matches:</p>
+
+<pre><code>---
+name: bq-audit
+description: Audit and dry-run BigQuery SQL changes before execution.
+---
+
+# BigQuery Audit Workflow
+
+1. Confirm partition filters compare raw `TIMESTAMP` bounds directly.
+2. Run the scan-byte check before reporting costs or querying prod:
+   `python3 .agents/skills/bq-audit/scripts/dry_run_gate.py &lt;sql_file&gt;`
+3. If the dry-run check fails, fix the raw `TIMESTAMP` filter before running the query.</code></pre>
+
+        <p>This three-tier layout gives Tuesday's SQL lesson a clean home on disk. Yet a harder question remains: <strong>who writes and updates <code>.agents/rules/</code> and <code>.agents/skills/</code>, and when?</strong></p>
+
+        <hr />
+
+        <h2>3. Updating Memory Without Drift: Stage A Session Close vs. Stage B Nightly Dreaming</h2>
+
+        <p>Letting an agent edit shared <code>.agents/</code> files mid-task turns single-run guesses into team rules, while full prompt rewrites drop older checks. Recent <strong>Recursive Self-Improvement (RSI)</strong> research shows a safer pattern. Projects like <strong>Darwin Gödel Machine</strong> (<a href="https://arxiv.org/abs/2505.22954">arXiv:2505.22954</a>) and <strong>AlphaEvolve</strong> on Google Cloud (<a href="https://arxiv.org/abs/2506.13131">arXiv:2506.13131</a>) test code changes offline against automated checks. Meanwhile, <strong>GEPA</strong> (<a href="https://arxiv.org/abs/2507.19457">arXiv:2507.19457</a>), <strong>ACE</strong> (<a href="https://arxiv.org/abs/2510.04618">arXiv:2510.04618</a>), and <strong>Sleep-time Compute</strong> (<a href="https://arxiv.org/abs/2504.13171">arXiv:2504.13171</a>) show why small offline memory updates beat rewriting entire prompts. Using the exact <code>hooks.json</code>, <code>mcp_config.json</code>, and <code>agy</code> CLI tools from Section 1, Figure 3 splits updates into two clean stages:</p>
+
+        <figure>
+          <img
+            src="https://faisalron.github.io/notes/inside-google-antigravity/03_figure_3_rsi_architecture_2x.png"
+            width="2336"
+            height="1362"
+            alt="Two-zone architecture diagram showing daytime agent reads from Tier 1, Tier 2, and Tier 3 memory plus Stage A Stop-hook trace logging over BigQuery MCP, flowing into Stage B nightly Batch Inference via Cloud Scheduler and Workflows, gated by Model Armor, Sensitive Data Protection, and Gen AI Evaluation Service before opening a DRAFT_PROPOSED Git pull request."
+          />
+          <figcaption>Figure 3: Separating daytime task execution and session-close logging (Stage A) from nightly Google Cloud batch dreaming and safety-gated pull requests (Stage B).</figcaption>
+        </figure>
+
+        <h3>Stage A: Session-Close <code>Stop</code> Hook (Private, Run Once)</h3>
+        <p>Direct commands from a developer carry the highest trust, so they can update private <code>~/.gemini/GEMINI.md</code> right away. When Tuesday's session closes, Antigravity's <code>Stop</code> hook in <code>hooks.json</code> summarizes the transcript <strong>once</strong> for Tier 1 Monday resume. It also logs Tuesday's <code>DATE(event_ts)</code> scan failure (<code>DEAD_END</code>, score, error) to <strong>BigQuery</strong> via <strong>BigQuery MCP</strong> (<code>mcp_config.json</code>). Shared <code>.agents/</code> files stay read-only all day.</p>
+
+        <h3>Stage B: Nightly "Dreaming" on Google Cloud (<code>50+</code> Logged Runs)</h3>
+        <p>Off-hours, <strong>Cloud Scheduler</strong> and <strong>Workflows</strong> run <strong>Batch Inference</strong> (<code>Gemini 3.x</code> on <strong>Gemini Enterprise Agent Platform</strong>) across saved summaries and the BigQuery log table in three steps.</p>
+
+        <ol>
+          <li><strong>It filters noise and merges conflicts.</strong> Single-run flukes (<code>N = 1</code>) expire quickly, while repeated traps like <code>DATE(event_ts)</code> (<code>N = 5+</code>) become <code>[DEAD_END]</code> rules. The job also merges conflicting notes across <code>.agents/wiki/*.md</code> and sends compute bottlenecks to <strong>AlphaEvolve on Google Cloud</strong>.</li>
+          <li><strong>It turns proven rules into scripts.</strong> When code can check a <code>[PROMOTED]</code> rule, the job moves it into a script under <code>.agents/skills/bq-audit/scripts/</code> and trims <code>.agents/rules/</code>.</li>
+        </ol>
+
+<pre><code>--- a/.agents/rules/rsi-data-guardrails.md
++++ b/.agents/rules/rsi-data-guardrails.md
+@@ -1,4 +1,3 @@
+-- [PROMOTED | verified: 14 runs] Validate SQL with `bq query --dry_run` before executing or reporting byte estimates.
++- Checked automatically by `bq-audit` skill (`scripts/dry_run_gate.py`).</code></pre>
+
+        <ol start="3">
+          <li><strong>It runs safety and holdout checks before opening a Git PR.</strong> <strong>Model Armor</strong> scans candidate diffs for prompt attacks (<strong>memory poisoning</strong>), while <strong>Sensitive Data Protection</strong> strips PII and secrets. Next, <strong>Gen AI Evaluation Service (<code>batch_evaluate()</code>)</strong> and Section 1's headless <code>agy</code> CLI test personal defaults, attack blocking, and multi-day quality on an <code>80/20</code> holdout split. Only passing diffs open a <strong><code>DRAFT_PROPOSED</code> Git Pull Request</strong> for human review.</li>
+        </ol>
+
+        <p>Once a teammate reviews that overnight pull request and runs <code>git pull</code>, the loop closes on the very next BigQuery task.</p>
+
+        <hr />
+
+        <h2>4. Closing the Loop: Thursday Morning</h2>
+
+        <p>Thursday morning shows why connecting these pieces pays off (Figure 4):</p>
+
+        <figure>
+          <img
+            src="https://faisalron.github.io/notes/inside-google-antigravity/04_figure_4_thursday_fix_2x.png"
+            width="2336"
+            height="969"
+            alt="Two-card after-fix diagram mirroring Figure 1: after an overnight git pull, Tier 2 rules under 450 tokens and the on-demand Tier 3 bq-audit skill enforce a direct timestamp bound query that skips five partitions and scans 120 MB within the 10 GB cap."
+          />
+          <figcaption>Figure 4: After pulling the reviewed PR, compact Tier 2 rules and Tier 3 scripts catch partition mistakes before production execution.</figcaption>
+        </figure>
+
+        <p>Antigravity's <strong>Autonomy</strong>, <strong>Trust</strong>, and <strong>Feedback</strong> tenets run the new query inside the OS sandbox and present a clear <strong>Plan</strong>. <strong>Self-Improvement</strong> loads the tiny <code>[DEAD_END]</code> rule in Tier 2 and pulls <code>bq-audit</code> with <code>dry_run_gate.py</code> on demand from Tier 3. Tuesday's 10 GB scan mistake is caught automatically before hitting production, and shared team prompts stay short week after week.</p>
+
+        <hr />
+
+        <h2>References</h2>
+
+        <ol>
+          <li>Yang et al., <em>SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering</em> (NeurIPS 2024, <a href="https://arxiv.org/abs/2405.15793">arXiv:2405.15793</a>).</li>
+          <li>Google Antigravity Team, <a href="https://antigravity.google/blog/introducing-google-antigravity/"><em>Introducing Google Antigravity</em></a> (Nov 2025); Google Developers Blog, <a href="https://developers.googleblog.com/en/build-with-google-antigravity-our-new-agentic-development-platform/"><em>Build with Google Antigravity, our new agentic development platform</em></a> (2025) &amp; <a href="https://developers.googleblog.com/en/io-2026-developer-highlights-antigravity-gemini-api-ai-studio/"><em>I/O 2026 developer highlights: Antigravity, Gemini API, AI Studio</em></a> (2026); Official Documentation at <a href="https://antigravity.google/docs/overview">antigravity.google/docs</a>.</li>
+          <li>Milam, Gulli, &amp; Nawalgaria, <a href="https://www.kaggle.com/whitepaper-context-engineering-sessions-and-memory"><em>Context Engineering: Sessions, Memory</em></a> (Google Whitepaper, Updated May 2026).</li>
+          <li>Zhang et al., <em>Darwin Gödel Machine</em> (<a href="https://arxiv.org/abs/2505.22954">arXiv:2505.22954</a>); Novikov et al., <em>AlphaEvolve</em> (<a href="https://arxiv.org/abs/2506.13131">arXiv:2506.13131</a>); Agrawal et al., <em>GEPA</em> (<a href="https://arxiv.org/abs/2507.19457">arXiv:2507.19457</a>); Zhang et al., <em>ACE</em> (<a href="https://arxiv.org/abs/2510.04618">arXiv:2510.04618</a>); Lin et al., <em>Sleep-time Compute</em> (<a href="https://arxiv.org/abs/2504.13171">arXiv:2504.13171</a>).</li>
+        </ol>
+
+        <hr />
+
+        <p><em>Originally published at <a href="https://faisalron.github.io/notes/inside-google-antigravity/">faisalron.github.io</a>.</em></p>
+      </div>
+    </article>
+  </main>
+</body>
+</html>
