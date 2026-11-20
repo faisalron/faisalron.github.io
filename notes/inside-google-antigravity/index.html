@@ -108,7 +108,7 @@
       margin: 2.3rem 0;
     }
     figure {
-      margin: 1.8rem 0;
+      margin: 1.8rem 0 0.5rem;
       border: 1px solid #e2dcd0;
       background: #ffffff;
       padding: 0.85rem;
@@ -118,11 +118,13 @@
       width: 100%;
       height: auto;
     }
-    figcaption {
-      margin-top: 0.65rem;
-      font-size: 0.82rem;
+    .fig-caption {
+      margin-top: 0;
+      margin-bottom: 1.8rem;
+      font-size: 0.84rem;
       color: #6f6a61;
       line-height: 1.45;
+      text-align: center;
     }
   </style>
 </head>
@@ -144,14 +146,14 @@
         <p>Picture a routine Tuesday bug on a data team. An agent wraps partitioned <code>event_ts</code> in <code>DATE()</code> inside a BigQuery <code>WHERE</code> clause and hits a 10 GB scan cap. How should the agent run that Tuesday fix safely, and how can it carry that lesson into Thursday's work without turning <code>AGENTS.md</code> into junk?</p>
 
         <figure>
-          <img
+<img
             src="https://faisalron.github.io/notes/inside-google-antigravity/01_figure_1_tuesday_bug_2x.png"
             width="2336"
             height="969"
             alt="Two-card diagram showing a broken BigQuery WHERE DATE(event_ts) filter scanning all six partitions (48 GB against a 10 GB cap) paired with two naive fixes that fail: stuffing full chat history into prompts or appending unreviewed fixes directly to AGENTS.md."
           />
-          <figcaption>Figure 1: Tuesday's full-scan bug breaks partition pruning and why naive prompt or history shortcuts fail.</figcaption>
         </figure>
+        <p class="fig-caption"><em>Figure 1: Tuesday's full-scan bug breaks partition pruning and why naive prompt or history shortcuts fail.</em></p>
 
         <p>Figure 1 shows the core tension: we want to prevent Tuesday's full-scan bug on future runs without bloating or breaking shared prompts. Answering how starts inside the coding agent itself.</p>
 
@@ -162,14 +164,14 @@
         <p>Research on <strong>SWE-agent</strong> (<a href="https://arxiv.org/abs/2405.15793">arXiv:2405.15793</a>) showed why coding agents struggle with raw bash shells and need a purpose-built <strong>Agent-Computer Interface (ACI)</strong>. Google's official <a href="https://antigravity.google/blog/introducing-google-antigravity/"><em>Introducing Google Antigravity</em></a> post builds on that lesson by bringing <em>"four key tenets of collaborative development together: trust, autonomy, feedback, and self-improvement"</em> (Figure 2):</p>
 
         <figure>
-          <img
+<img
             src="https://faisalron.github.io/notes/inside-google-antigravity/02_figure_2_antigravity_anatomy_2x.png"
             width="2336"
             height="1387"
             alt="Architecture diagram grouping Google Antigravity capabilities into four zones: Autonomy (Agent Manager, VS Code Editor, headless agy CLI, isolated subagents in Git worktrees, OS-kernel sandbox, Chrome browser loop, MCP, Lifecycle Hooks), Trust (Plan and Walkthrough Artifacts), Feedback (inline Artifact comments), and Self-Improvement (private defaults, team rules, and on-demand skills)."
           />
-          <figcaption>Figure 2: How Google Antigravity pairs autonomy, inspectable artifacts, inline feedback, and disk-based self-improvement inside one coding session.</figcaption>
         </figure>
+        <p class="fig-caption"><em>Figure 2: How Google Antigravity pairs autonomy, inspectable artifacts, inline feedback, and disk-based self-improvement inside one coding session.</em></p>
 
         <ol>
           <li>
@@ -225,14 +227,14 @@
         <p>Letting an agent edit shared <code>.agents/</code> files mid-task turns single-run guesses into team rules, while full prompt rewrites drop older checks. Recent <strong>Recursive Self-Improvement (RSI)</strong> research shows a safer pattern. Projects like <strong>Darwin Gödel Machine</strong> (<a href="https://arxiv.org/abs/2505.22954">arXiv:2505.22954</a>) and <strong>AlphaEvolve</strong> on Google Cloud (<a href="https://arxiv.org/abs/2506.13131">arXiv:2506.13131</a>) test code changes offline against automated checks. Meanwhile, <strong>GEPA</strong> (<a href="https://arxiv.org/abs/2507.19457">arXiv:2507.19457</a>), <strong>ACE</strong> (<a href="https://arxiv.org/abs/2510.04618">arXiv:2510.04618</a>), and <strong>Sleep-time Compute</strong> (<a href="https://arxiv.org/abs/2504.13171">arXiv:2504.13171</a>) show why small offline memory updates beat rewriting entire prompts. Using the exact <code>hooks.json</code>, <code>mcp_config.json</code>, and <code>agy</code> CLI tools from Section 1, Figure 3 splits updates into two clean stages:</p>
 
         <figure>
-          <img
+<img
             src="https://faisalron.github.io/notes/inside-google-antigravity/03_figure_3_rsi_architecture_2x.png"
             width="2336"
             height="1362"
             alt="Two-zone architecture diagram showing daytime agent reads from Tier 1, Tier 2, and Tier 3 memory plus Stage A Stop-hook trace logging over BigQuery MCP, flowing into Stage B nightly Batch Inference via Cloud Scheduler and Workflows, gated by Model Armor, Sensitive Data Protection, and Gen AI Evaluation Service before opening a DRAFT_PROPOSED Git pull request."
           />
-          <figcaption>Figure 3: Separating daytime task execution and session-close logging (Stage A) from nightly Google Cloud batch dreaming and safety-gated pull requests (Stage B).</figcaption>
         </figure>
+        <p class="fig-caption"><em>Figure 3: Separating daytime task execution and session-close logging (Stage A) from nightly Google Cloud batch dreaming and safety-gated pull requests (Stage B).</em></p>
 
         <h3>Stage A: Session-Close <code>Stop</code> Hook (Private, Run Once)</h3>
         <p>Direct commands from a developer carry the highest trust, so they can update private <code>~/.gemini/GEMINI.md</code> right away. When Tuesday's session closes, Antigravity's <code>Stop</code> hook in <code>hooks.json</code> summarizes the transcript <strong>once</strong> for Tier 1 Monday resume. It also logs Tuesday's <code>DATE(event_ts)</code> scan failure (<code>DEAD_END</code>, score, error) to <strong>BigQuery</strong> via <strong>BigQuery MCP</strong> (<code>mcp_config.json</code>). Shared <code>.agents/</code> files stay read-only all day.</p>
@@ -260,14 +262,14 @@
         <p>Thursday morning shows why connecting these pieces pays off (Figure 4):</p>
 
         <figure>
-          <img
+<img
             src="https://faisalron.github.io/notes/inside-google-antigravity/04_figure_4_thursday_fix_2x.png"
             width="2336"
             height="969"
             alt="Two-card after-fix diagram mirroring Figure 1: after an overnight git pull, Tier 2 rules under 450 tokens and the on-demand Tier 3 bq-audit skill enforce a direct timestamp bound query that skips five partitions and scans 120 MB within the 10 GB cap."
           />
-          <figcaption>Figure 4: After pulling the reviewed PR, compact Tier 2 rules and Tier 3 scripts catch partition mistakes before production execution.</figcaption>
         </figure>
+        <p class="fig-caption"><em>Figure 4: After pulling the reviewed PR, compact Tier 2 rules and Tier 3 scripts catch partition mistakes before production execution.</em></p>
 
         <p>Antigravity's <strong>Autonomy</strong>, <strong>Trust</strong>, and <strong>Feedback</strong> tenets run the new query inside the OS sandbox and present a clear <strong>Plan</strong>. <strong>Self-Improvement</strong> loads the tiny <code>[DEAD_END]</code> rule in Tier 2 and pulls <code>bq-audit</code> with <code>dry_run_gate.py</code> on demand from Tier 3. Tuesday's 10 GB scan mistake is caught automatically before hitting production, and shared team prompts stay short week after week.</p>
 
